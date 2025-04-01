@@ -2,6 +2,7 @@ import express from "express";
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
+import usersRoutes from "./routes/users/user.routes.js";
 
 const app = express();
 
@@ -20,9 +21,12 @@ app.use(cookieParser());
 app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 
-// Routes
-app.use("/", (req, res) => {
-  res.send("API NESEO Funcionando correctamente.");
-});
+// Rura principal de la API
+// app.use("/", (req, res) => {
+//   res.send("API NESEO Funcionando correctamente.");
+// });
+
+//Rutas de usuarios
+app.use("/api/v1/users", usersRoutes);
 
 export default app;

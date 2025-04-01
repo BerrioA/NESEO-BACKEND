@@ -20,10 +20,20 @@ export const User = sequelize.define("users", {
     type: DataTypes.STRING(40),
     allowNull: false,
   },
+  // Celular del usuario
+  cellphone: {
+    type: DataTypes.STRING(10),
+    allowNull: false,
+    validate: {
+      isNumeric: true,
+      len: [10, 10],
+    },
+  },
   // Correo del usuario
   email: {
     type: DataTypes.STRING(150),
     allowNull: false,
+    unique: true,
   },
   // Contraseña del usuario
   password: {
