@@ -1,24 +1,32 @@
 import app from "./app.js";
 import { sequelize } from "./database/database.js";
 import "./models/relations.js";
+import { insertDefaultLabsAndRestrictions } from "./models/restrictions.js";
 
 async function main() {
   try {
     //await sequelize.authenticate();
-    //console.log("Conexión establedica con exito a la base de datos!");
+    console.log(
+      "✅ La conexión con la base de datos se ha realizado con éxito."
+    );
 
-    //Este comando permite realizar cambios en la base de datos de manera forzada
+    // Sincronizar base de datos (eliminar y recrear todas las tablas)
     //await sequelize.sync({ force: true });
+
+    // Insertar datos después de la sincronización
+    //await insertDefaultLabsAndRestrictions();
 
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, () => {
-      console.log("✅ Servidor corriendo en el puerto:", PORT);
+      console.log(
+        `✅ ¡Hecho! Servidor activo y escuchando en el puerto: ${PORT}`
+      );
     });
   } catch (error) {
     console.error(
-      "❌ Error al intentar establecer la conexión con el servidor."
+      "❌ Lo sentimos, no hemos podido conectarnos con el servidor en este momento. Estamos en ello para solucionarlo pronto.",
+      error
     );
-    console.error(error);
   }
 }
 

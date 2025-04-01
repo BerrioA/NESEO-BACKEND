@@ -11,3 +11,6 @@ RestrictionLab.belongsTo(Lab, { foreignKey: "labId" });
 // Relación un usuario tiene muchas reservas
 User.hasMany(Reservation, { foreignKey: "userId" });
 Reservation.belongsTo(User, { foreignKey: "userId" });
+
+Lab.hasMany(Reservation, { foreignKey: "labId" });
+Reservation.belongsTo(Lab, { foreignKey: "labId" });

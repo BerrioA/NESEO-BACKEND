@@ -34,23 +34,3 @@ export const Lab = sequelize.define("labs", {
     allowNull: true,
   },
 });
-
-Lab.afterSync(async () => {
-  const labs = [
-    {
-      lab_name: "Laboratorio 1",
-      quotas: 10,
-      description:
-        "Laboratorio 1 para hacer pruebas de máximo 5 estudiantes por grupo.",
-    },
-    {
-      lab_name: "Laboratorio 2",
-      quotas: 70,
-      description:
-        "Laboratorio 2 para hacer pruebas de máximo 6 estudiantes por grupo en el laboratorio con 70 cupos.",
-    },
-  ];
-
-  // Insertar datos después de sincronizar
-  await Lab.bulkCreate(labs);
-});
