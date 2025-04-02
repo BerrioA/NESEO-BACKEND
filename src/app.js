@@ -1,9 +1,10 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import helmet from "helmet";
+import helmet, { ieNoOpen } from "helmet";
 import cors from "cors";
 import usersRoutes from "./routes/users/user.routes.js";
 import labsRoutes from "./routes/labs/labs.routes.js";
+import restrictionsLabsRoutes from "./routes/restrictions/restrictionslabs.routes.js";
 
 const app = express();
 
@@ -30,5 +31,6 @@ app.use(express.urlencoded({ extended: true }));
 //Rutas de usuarios
 app.use("/api/v1/users", usersRoutes);
 app.use("/api/v1/labs", labsRoutes);
+app.use("/api/v1/restrictions", restrictionsLabsRoutes);
 
 export default app;
