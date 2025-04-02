@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import cors from "cors";
 import usersRoutes from "./routes/users/user.routes.js";
+import labsRoutes from "./routes/labs/labs.routes.js";
 
 const app = express();
 
@@ -28,5 +29,6 @@ app.use(express.urlencoded({ extended: true }));
 
 //Rutas de usuarios
 app.use("/api/v1/users", usersRoutes);
+app.use("/api/v1/labs", labsRoutes);
 
 export default app;

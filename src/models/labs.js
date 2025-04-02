@@ -21,11 +21,7 @@ export const Lab = sequelize.define("labs", {
     type: DataTypes.INTEGER,
     allowNull: false,
     validate: {
-      isAllowedValue(value) {
-        if (![10, 70].includes(value)) {
-          throw new Error("La capacidad máxima solo puede ser 10 o 70.");
-        }
-      },
+      isNumeric: true,
     },
   },
   // Descripción del laboratorio
