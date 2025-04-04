@@ -1,11 +1,12 @@
 import express from "express";
 import cookieParser from "cookie-parser";
-import helmet, { ieNoOpen } from "helmet";
+import helmet from "helmet";
 import cors from "cors";
 import usersRoutes from "./routes/users/user.routes.js";
 import labsRoutes from "./routes/labs/labs.routes.js";
 import restrictionsLabsRoutes from "./routes/restrictions/restrictionslabs.routes.js";
 import reservationRoutes from "./routes/reservations/reservations.routes.js";
+import authRoutes from "./routes/authentication/authentication.routes.js";
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.use("/api/neseo/v1", (req, res) => {
 });
 
 //Rutas de usuarios
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/users", usersRoutes);
 app.use("/api/v1/labs", labsRoutes);
 app.use("/api/v1/restrictions", restrictionsLabsRoutes);

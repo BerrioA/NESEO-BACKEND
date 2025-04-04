@@ -1,11 +1,12 @@
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 import { User } from "../../models/users.js";
 
 // Controlador encargador de mostrar todos los usuarios
 export const getUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: ["id", "name", "last_name", "cellphone", "email"],
+      attributes: ["id", "name", "last_name", "cellphone", "email", "rol"],
     });
 
     return res.status(200).json(users);
@@ -35,7 +36,7 @@ export const registerUsers = async (req, res) => {
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
 
-    await User.create({
+    const newUser = await User.create({
       name,
       last_name,
       cellphone,
@@ -43,9 +44,20 @@ export const registerUsers = async (req, res) => {
       password: hashedPassword,
     });
 
-    return res
-      .status(200)
-      .json({ message: "¡Bienvenido! Tu cuenta ha sido creada exitosamente." });
+    const token = jwt.sign(
+      {
+        email: newUser.email,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      }
+    );
+
+    return res.status(200).json({
+      message: "¡Bienvenido! Tu cuenta ha sido creada exitosamente.",
+      token,
+    });
   } catch (error) {
     console.error(
       `¡Vaya! Parece que el registro decidió tomarse un descanso. ¿Podrías intentarlo más tarde?. ${error}`
@@ -137,7 +149,7 @@ export const getUser = async (req, res) => {
   try {
     const { idUser } = req.params;
     const user = await User.findByPk(idUser, {
-      attributes: ["id", "name", "last_name", "cellphone", "email"],
+      attributes: ["id", "name", "last_name", "cellphone", "email", "rol"],
     });
 
     if (!user)
