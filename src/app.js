@@ -5,6 +5,7 @@ import cors from "cors";
 import usersRoutes from "./routes/users/user.routes.js";
 import labsRoutes from "./routes/labs/labs.routes.js";
 import restrictionsLabsRoutes from "./routes/restrictions/restrictionslabs.routes.js";
+import reservationRoutes from "./routes/reservations/reservations.routes.js";
 
 const app = express();
 
@@ -24,13 +25,14 @@ app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 
 // Rura principal de la API
-// app.use("/", (req, res) => {
-//   res.send("API NESEO Funcionando correctamente.");
-// });
+app.use("/api/neseo/v1", (req, res) => {
+  res.send("API NESEO Funcionando correctamente.");
+});
 
 //Rutas de usuarios
 app.use("/api/v1/users", usersRoutes);
 app.use("/api/v1/labs", labsRoutes);
 app.use("/api/v1/restrictions", restrictionsLabsRoutes);
+app.use("/api/v1/reservations", reservationRoutes);
 
 export default app;

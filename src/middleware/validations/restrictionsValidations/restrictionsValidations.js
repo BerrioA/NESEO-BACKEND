@@ -45,7 +45,7 @@ export const validationRegisterRestrictions = [
     .isString()
     .matches(/^[a-zA-Z0-9 .,]+$/)
     .withMessage(
-      "Los números y símbolos están de vacaciones. Usa solo letras, puntos, comas y espacios en la descripción."
+      "Los símbolos están de vacaciones. Usa solo letras, múmeros, puntos, comas y espacios en la descripción."
     )
     .escape(),
 

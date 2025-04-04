@@ -5,8 +5,7 @@ import { validationResultExpress } from "../../express-validator.js";
 export const validationRegisterUsers = [
   // Validación para el campo nombre
   body("name")
-    .exists()
-    .withMessage("Tu nombre es clave para continuar. ¡Solo falta eso!")
+    .trim()
     .notEmpty()
     .withMessage("Tu nombre es clave para continuar. ¡Solo falta eso!")
     .isString()
@@ -20,8 +19,7 @@ export const validationRegisterUsers = [
 
   // Validación para el campo apellido
   body("last_name")
-    .exists()
-    .withMessage("Tu apellido es clave para continuar. ¡Solo falta eso!")
+    .trim()
     .notEmpty()
     .withMessage("Tu apellido es clave para continuar. ¡Solo falta eso!")
     .isString()
@@ -35,10 +33,7 @@ export const validationRegisterUsers = [
 
   // Validación para el campo email
   body("email")
-    .exists()
-    .withMessage(
-      "¡Espera! Necesitamos tu correo electrónico antes de continuar."
-    )
+    .trim()
     .notEmpty()
     .withMessage(
       "¡Espera! Necesitamos tu correo electrónico antes de continuar."
@@ -52,10 +47,7 @@ export const validationRegisterUsers = [
 
   // Validación para el campo contraseña
   body("password")
-    .exists()
-    .withMessage(
-      "¡Ups! Parece que olvidaste crear una contraseña. ¡Es hora de inventar algo seguro!"
-    )
+    .trim()
     .notEmpty()
     .withMessage(
       "¡Ups! Parece que olvidaste crear una contraseña. ¡Es hora de inventar algo seguro!"
@@ -78,6 +70,7 @@ export const validationRegisterUsers = [
 export const validationUpdateUser = [
   // Validación para el campo nombre
   body("name")
+    .trim()
     .optional()
     .isString()
     .isLength({ min: 3 })
@@ -90,6 +83,7 @@ export const validationUpdateUser = [
 
   // Validación para el campo apellido
   body("last_name")
+    .trim()
     .optional()
     .isString()
     .isLength({ min: 3 })
@@ -102,6 +96,7 @@ export const validationUpdateUser = [
 
   // Validación para el campo email
   body("email")
+    .trim()
     .optional()
     .isEmail()
     .matches(/^[a-zA-Z0-9._%+-]+@cecar\.edu\.co$/)
@@ -111,6 +106,7 @@ export const validationUpdateUser = [
 
   // Validación para el campo contraseña
   body("password")
+    .trim()
     .optional()
     .isString()
     .isLength({ min: 6 })
@@ -129,13 +125,14 @@ export const validationUpdateUser = [
 // Validación del Identificador del usuario
 export const validationIdUser = [
   param("idUser")
+    .trim()
     .exists()
     .withMessage(
       "Nos hace falta el ID del usuario para avanzar. ¡Solo un pequeño detalle más!"
     )
     .isUUID()
     .withMessage(
-      "¡Tranquilo! Solo necesitamos que el ID esté en formato UUID valido. ¡Vuelve a intentarlo!"
+      "¡Tranquilo! Solo necesitamos que el ID del usuario esté en formato UUID valido. ¡Vuelve a intentarlo!"
     )
     .escape(),
 

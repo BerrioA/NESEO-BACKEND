@@ -25,7 +25,7 @@ export const Reservation = sequelize.define("reservations", {
   },
   // Área de estudio
   study_area: {
-    type: DataTypes.STRING(15),
+    type: DataTypes.STRING(20),
     allowNull: false,
     validate: {
       isIn: [
@@ -50,35 +50,52 @@ export const Reservation = sequelize.define("reservations", {
   // Integrantes que comforman el grupo con el estudiantes
   partners: {
     type: DataTypes.ARRAY(DataTypes.JSON),
-    allowNull: false,
+    allowNull: true, // Permitir que sea null
     validate: {
       isValidPartners(partners) {
+        // Si es null o undefined, permitirlo sin validación adicional
+        if (partners === null || partners === undefined) {
+          return;
+        }
+
         if (!Array.isArray(partners)) {
-          throw new Error("El campo 'compañeros' debe ser un array.");
+          throw new Error("El campo 'partners' debe ser un array.");
         }
 
         partners.forEach(({ name, last_name }, index) => {
-          if (!name || !last_name) {
+          // Permitir objetos vacíos (si ambos valores son nulos o undefined)
+          if (!name && !last_name) {
+            return;
+          }
+
+          // Validar que sean cadenas de texto si existen
+          if (name && typeof name !== "string") {
             throw new Error(
-              `El elemento ${index} debe contener 'nombre' y 'apellido'.`
+              `El nombre en el elemento ${index} debe ser una cadena de texto.`
+            );
+          }
+          if (last_name && typeof last_name !== "string") {
+            throw new Error(
+              `El apellido en el elemento ${index} debe ser una cadena de texto.`
             );
           }
 
-          if (typeof name !== "string" || typeof last_name !== "string") {
+          // Validar que no sean solo espacios en blanco
+          if (name && !name.trim()) {
             throw new Error(
-              `Los valores de 'nombre' y 'apellido' en el elemento ${index} deben ser cadenas de texto.`
+              `El nombre en el elemento ${index} no puede estar vacío.`
             );
           }
-
-          if (!name.trim() || !last_name.trim()) {
+          if (last_name && !last_name.trim()) {
             throw new Error(
-              `Los campos 'nombre' y 'apellido' del elemento ${index} no pueden estar vacíos.`
+              `El apellido en el elemento ${index} no puede estar vacío.`
             );
           }
         });
       },
     },
   },
+
   // Fecha relacionada con el dia de la reserva
   date: {
     type: DataTypes.DATEONLY,
@@ -137,11 +154,6 @@ export const Reservation = sequelize.define("reservations", {
         }
       },
     },
-  },
-  // Comentarios
-  comments: {
-    type: DataTypes.STRING(255),
-    allowNull: true,
   },
   //Email del estudiante que realizao la reserva
   email: {

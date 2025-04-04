@@ -88,11 +88,11 @@ export const validationIdLab = [
   param("idLab")
     .exists()
     .withMessage(
-      "Nos hace falta el ID del usuario para avanzar. ¡Solo un pequeño detalle más!"
+      "Nos hace falta el ID del laboratorio para avanzar. ¡Solo un pequeño detalle más!"
     )
     .isUUID()
     .withMessage(
-      "¡Tranquilo! Solo necesitamos que el ID esté en formato UUID valido. ¡Vuelve a intentarlo!"
+      "¡Tranquilo! Solo necesitamos que el ID del laboratorio esté en formato UUID valido. ¡Vuelve a intentarlo!"
     )
     .escape(),
 
