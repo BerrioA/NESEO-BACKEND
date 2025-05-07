@@ -10,18 +10,32 @@ import {
   validationRegisterReservation,
 } from "../../middleware/validations/reservationsValidations/reservationsValidations.js";
 import { validationIdLab } from "../../middleware/validations/labsValidations/labsValidations.js";
+import { requireToken } from "../../middleware/auth/requireToken.js";
+import {
+  verifyAdmin,
+  verifyAllUsers,
+  verifyStudent,
+} from "../../middleware/auth/verifyUser.js";
 // import { validationIdUser } from "../../middleware/validations/usersValidations/usersValidations.js";
 
 const router = Router();
 
-router.get("/", getReservations);
+router.get("/", requireToken, verifyAdmin, getReservations);
 router.post(
   "/:idLab",
+  requireToken,
+  verifyStudent,
   validationIdLab,
-  validationRegisterReservation,
+  // validationRegisterReservation,
   registerReservations
 );
-router.delete("/:idReservation", validationIdReservation, deleteReservation);
-router.get("/:idReservation", getReservation);
+router.delete(
+  "/:idReservation",
+  requireToken,
+  verifyAllUsers,
+  validationIdReservation,
+  deleteReservation
+);
+router.get("/:idReservation", requireToken, verifyAllUsers, getReservation);
 
 export default router;

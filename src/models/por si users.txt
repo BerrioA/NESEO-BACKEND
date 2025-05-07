@@ -15,35 +15,10 @@ export const User = sequelize.define("users", {
     type: DataTypes.STRING(40),
     allowNull: false,
   },
-  // Segúndo nombre del usuario
-  middle_name: {
-    type: DataTypes.STRING(40),
-    allowNull: true,
-  },
-  // Primer apellido del usuario
+  // Apellido del usuario
   last_name: {
     type: DataTypes.STRING(40),
     allowNull: false,
-  },
-  // Segundo apellido del usuario
-  second_last_name: {
-    type: DataTypes.STRING(40),
-    allowNull: false,
-  },
-  //Tipo de documento de identidad del usuario
-  document_type: {
-    type: DataTypes.ENUM("CC", "TI"),
-    allowNull: false,
-  },
-  // Número de documento de identidad del usuario
-  document_number: {
-    type: DataTypes.STRING(10),
-    allowNull: false,
-    unique: true,
-    validate: {
-      isNumeric: true,
-      len: [7, 10],
-    },
   },
   // Celular del usuario
   cellphone: {
@@ -62,41 +37,31 @@ export const User = sequelize.define("users", {
   },
   // Contraseña del usuario
   password: {
-    type: DataTypes.STRING(50),
+    type: DataTypes.STRING(150),
     allowNull: false,
   },
   // Rol del usuario
   rol: {
-    type: DataTypes.UUID(150),
+    type: DataTypes.STRING(150),
     allowNull: true,
+    validate: {
+      isIn: [["Admin", "Estudiante"]],
+    },
+    defaultValue: "Estudiante",
   },
-  // Estado del usuario
-  status: {
-    type: DataTypes.ENUM(
-      "Pendiente de inicio",
-      "activo",
-      "inactivo",
-      "Finalizado"
-    ),
-    defaultValue: "activo",
-  },
-  // Verificación del usuario
   isVerified: {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
-  // Codigo de verificación del usuario
   verificationCode: {
     type: DataTypes.STRING(6),
   },
-  // Última vez que se envió el correo de verificación
   lastResendTime: {
     type: DataTypes.DATE,
-    allowNull: true,
+    allowNull: true, // Puede ser nulo inicialmente
   },
-  // Contador de reenvios del correo de verificación
   resendCount: {
     type: DataTypes.INTEGER,
-    defaultValue: 0,
+    defaultValue: 0, // Inicialmente 0
   },
 });

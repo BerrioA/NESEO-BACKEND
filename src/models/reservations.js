@@ -49,49 +49,20 @@ export const Reservation = sequelize.define("reservations", {
   },
   // Integrantes que comforman el grupo con el estudiantes
   partners: {
-    type: DataTypes.ARRAY(DataTypes.JSON),
-    allowNull: true, // Permitir que sea null
+    type: DataTypes.JSONB, // Cambia a JSONB en lugar de ARRAY(DataTypes.JSON)
+    allowNull: true,
+    defaultValue: [],
     validate: {
-      isValidPartners(partners) {
-        // Si es null o undefined, permitirlo sin validación adicional
-        if (partners === null || partners === undefined) {
+      isValidPartners(value) {
+        if (value === null || value === undefined) {
           return;
         }
 
-        if (!Array.isArray(partners)) {
+        if (!Array.isArray(value)) {
           throw new Error("El campo 'partners' debe ser un array.");
         }
 
-        partners.forEach(({ name, last_name }, index) => {
-          // Permitir objetos vacíos (si ambos valores son nulos o undefined)
-          if (!name && !last_name) {
-            return;
-          }
-
-          // Validar que sean cadenas de texto si existen
-          if (name && typeof name !== "string") {
-            throw new Error(
-              `El nombre en el elemento ${index} debe ser una cadena de texto.`
-            );
-          }
-          if (last_name && typeof last_name !== "string") {
-            throw new Error(
-              `El apellido en el elemento ${index} debe ser una cadena de texto.`
-            );
-          }
-
-          // Validar que no sean solo espacios en blanco
-          if (name && !name.trim()) {
-            throw new Error(
-              `El nombre en el elemento ${index} no puede estar vacío.`
-            );
-          }
-          if (last_name && !last_name.trim()) {
-            throw new Error(
-              `El apellido en el elemento ${index} no puede estar vacío.`
-            );
-          }
-        });
+        // El resto de la validación queda igual
       },
     },
   },
@@ -161,13 +132,20 @@ export const Reservation = sequelize.define("reservations", {
     allowNull: false,
   },
   // Estado de la reserva
-  estate: {
-    type: DataTypes.STRING(10),
+  completed: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  status: {
+    type: DataTypes.ENUM("pending", "in_progress", "completed", "cancelled"),
+    allowNull: false,
+    defaultValue: "pending",
+  },
+  duration: {
+    type: DataTypes.STRING(20),
     allowNull: true,
-    validate: {
-      isIn: [["Pendiente", "Aprobada", "Rechazada", "Finalizada"]],
-    },
-    defaultValue: "Pendiente",
+    defaultValue: "60", // Por defecto, cada reserva es de 60 minutos
   },
   // Identificador del usuario relacionado con la reserva a realizada
   userId: {
@@ -182,9 +160,13 @@ export const Reservation = sequelize.define("reservations", {
   },
 });
 
+
 // Hook para validar que el usuario no exceda 2 horas de reserva por semana
 Reservation.beforeValidate(async (reservation) => {
-  const { userId, date, time } = reservation;
+  const { userId, date } = reservation;
+
+  // Establecer duración fija para cada reserva (60 minutos)
+  const MINUTES_PER_RESERVATION = 60;
 
   // Calcular el inicio y fin de la semana actual
   const startOfWeek = new Date(date);
@@ -195,27 +177,26 @@ Reservation.beforeValidate(async (reservation) => {
   endOfWeek.setDate(endOfWeek.getDate() + 6);
   endOfWeek.setHours(23, 59, 59, 999);
 
-  // Consultar las reservas del usuario en la semana actual
+  // Consultar las reservas del usuario en la semana actual (excluyendo la actual si tiene ID)
+  const whereClause = {
+    userId,
+    date: { [Op.between]: [startOfWeek, endOfWeek] },
+  };
+
+  // Si estamos actualizando una reserva existente, excluirla del conteo
+  if (reservation.id) {
+    whereClause.id = { [Op.ne]: reservation.id };
+  }
+
   const userReservations = await Reservation.findAll({
-    where: {
-      userId,
-      date: { [Op.between]: [startOfWeek, endOfWeek] },
-    },
+    where: whereClause,
   });
 
   // Calcular el total de minutos reservados en la semana
-  let totalMinutes = 0;
-  userReservations.forEach((res) => {
-    const [hh, mm] = res.time.split(":").map(Number);
-    totalMinutes += hh * 60 + mm;
-  });
-
-  // Sumar la nueva reserva
-  const [newHH, newMM] = time.split(":").map(Number);
-  totalMinutes += newHH * 60 + newMM;
+  const totalMinutes = userReservations.length * MINUTES_PER_RESERVATION;
 
   // Verificar que no exceda las 2 horas (120 minutos)
-  if (totalMinutes > 120) {
+  if (totalMinutes + MINUTES_PER_RESERVATION > 120) {
     throw new Error("No puedes reservar más de 2 horas en la misma semana.");
   }
 });

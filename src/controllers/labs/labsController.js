@@ -1,10 +1,29 @@
 import { Lab } from "../../models/labs.js";
+import { RestrictionLab } from "../../models/restrictions.js";
 
 // Controlador encargado de mostrar todos los laboratorios
 export const getLabs = async (req, res) => {
   try {
     const labs = await Lab.findAll({
-      attributes: ["id", "lab_name", "quotas", "description"],
+      attributes: [
+        "id",
+        "lab_name",
+        "quotas",
+        "occupied_quotas",
+        "description",
+      ],
+      include: [
+        {
+          model: RestrictionLab,
+          attributes: [
+            "id",
+            "max_groups",
+            "min_group_size",
+            "max_group_size",
+            "description",
+          ],
+        },
+      ],
     });
 
     return res.status(200).json(labs);
@@ -69,7 +88,7 @@ export const updateLabs = async (req, res) => {
           "¡Lo sentimos! No hemos podido encontrar al laboratorio que intentas actualizar.",
       });
 
-    const { lab_name, quotas, description } = req.body;
+    const { lab_name, quotas, description, occupied_quotas } = req.body;
 
     //Validación encargada de verificar que el usuario si envie un campo para actualizar y no un objeto vacio
     if (Object.keys(req.body).length === 0) {
@@ -96,6 +115,7 @@ export const updateLabs = async (req, res) => {
     await lab.update({
       lab_name,
       quotas,
+      occupied_quotas,
       description,
     });
 
@@ -151,7 +171,13 @@ export const getLab = async (req, res) => {
   try {
     const { idLab } = req.params;
     const lab = await Lab.findByPk(idLab, {
-      attributes: ["id", "lab_name", "quotas", "description"],
+      attributes: [
+        "id",
+        "lab_name",
+        "quotas",
+        "occupied_quotas",
+        "description",
+      ],
     });
 
     if (!lab)

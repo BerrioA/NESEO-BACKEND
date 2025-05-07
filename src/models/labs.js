@@ -23,6 +23,15 @@ export const Lab = sequelize.define("labs", {
     validate: {
       isNumeric: true,
     },
+  }, // Cupos ocupados
+  occupied_quotas: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0, // Inicialmente 0
+    validate: {
+      isNumeric: true,
+      min: 0, // No puede ser negativo
+    },
   },
   // Descripción del laboratorio
   description: {

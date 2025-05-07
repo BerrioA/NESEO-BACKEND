@@ -7,6 +7,7 @@ import labsRoutes from "./routes/labs/labs.routes.js";
 import restrictionsLabsRoutes from "./routes/restrictions/restrictionslabs.routes.js";
 import reservationRoutes from "./routes/reservations/reservations.routes.js";
 import authRoutes from "./routes/authentication/authentication.routes.js";
+// En tu archivo de inicialización (app.js o server.js)
 
 const app = express();
 
@@ -21,14 +22,15 @@ const corsOptions = {
 // Middlewares
 app.use(helmet());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(cors(corsOptions));
-app.use(express.urlencoded({ extended: true }));
 
 // Rura principal de la API
 app.use("/api/neseo/v1", (req, res) => {
   res.send("API NESEO Funcionando correctamente.");
 });
+
 
 //Rutas de usuarios
 app.use("/api/v1/auth", authRoutes);

@@ -106,10 +106,10 @@ export const validationRegisterReservation = [
     .notEmpty()
     .isString()
     .isLength({ min: 3 })
-    .withMessage("¡Hola! El nombre del docente parece un poco corto. ")
+    .withMessage("¡Hola! El tipo de actividad parece un poco corto. ")
     .matches(/^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$/)
     .withMessage(
-      "Los números y símbolos están de vacaciones. Usa solo letras y espacios en el nombre del docente."
+      "Los números y símbolos están de vacaciones. Usa solo letras y espacios en el tipo de actividad."
     )
     .escape(),
 

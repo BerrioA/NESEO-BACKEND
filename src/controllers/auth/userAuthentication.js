@@ -4,6 +4,11 @@ import {
   generateToken,
 } from "../../utils/tokenManager.js";
 import { User } from "../../models/users.js";
+import {
+  ResendValidationCode,
+  SendVerificationCode,
+  WelcomeEmail,
+} from "../../middleware/verificationEmail/Email.js";
 
 // Controlador encargado de hacer el loguin del usuario
 export const login = async (req, res) => {
@@ -18,6 +23,14 @@ export const login = async (req, res) => {
     const matchPassword = await bcryptjs.compare(password, user.password);
     if (!matchPassword) {
       return res.status(403).json({ message: "Credenciales incorrectas." });
+    }
+
+    const userstatus = await User.findOne({ where: { isVerified: true } });
+    if (!userstatus) {
+      return res.status(403).json({
+        message:
+          "Por favor, revisa tu bandeja de entrada y verifica tu correo para continuar.",
+      });
     }
 
     const { token, expiresIn } = generateToken(user.id);
@@ -66,6 +79,8 @@ export const profile = async (req, res) => {
       name: user.name,
       last_name: user.last_name,
       rol: user.rol,
+      email: user.email,
+      isVerified: user.isVerified,
     });
   } catch (error) {
     console.error("Error al obtener el perfil del usuario:", error);
@@ -88,6 +103,71 @@ export const refreshToken = (req, res) => {
     return res.status(500).json({
       message:
         "Se ha presentado un error en el servidor al intentar generar el RefreshToken.",
+    });
+  }
+};
+
+// Controlador encargado de verificar la dirección de correo
+export const verifyEmail = async (req, res) => {
+  try {
+    const { code } = req.body;
+    const user = await User.findOne({ where: { verificationCode: code } });
+
+    await user.update({
+      isVerified: true,
+      verificationCode: null,
+      resendCount: 0,
+    });
+
+    await WelcomeEmail(user.email, user.name);
+
+    return res.status(200).json({
+      message: "¡Perfecto! tu cuenta ha sido verificada con éxito.",
+    });
+  } catch (error) {
+    console.error(
+      `Lo sentimos, no hemos podido verificar la dirección de correo en este momento. Estamos en ello para solucionarlo pronto. ${error}`
+    );
+
+    return res.status(500).json({
+      error:
+        "Lo sentimos, no hemos podido verificar la dirección de correo en este momento. Estamos en ello para solucionarlo pronto.",
+    });
+  }
+};
+
+// Controlador encargado de reenviar el código de verificación del correo electrónico
+export const resendEmailCode = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email } });
+    const now = new Date();
+
+    if (!user) {
+      return res.status(404).json({ message: "Usuario no encontrado." });
+    }
+
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    await user.update({
+      verificationCode,
+      lastResendTime: now,
+      resendCount: user.resendCount + 1,
+    });
+
+    ResendValidationCode(user.email, user.verificationCode);
+
+    return res.status(200).json({
+      message: "Código de verificación reenviado con éxito.",
+    });
+  } catch (error) {
+    console.error("Error al reenviar el código de verificación:", error);
+
+    return res.status(500).json({
+      message:
+        "Error interno del servidor al intentar reenviar el código de verificación.",
     });
   }
 };

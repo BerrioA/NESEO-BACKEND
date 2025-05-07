@@ -46,3 +46,29 @@ export const verifyStudent = (req, res, next) => {
     });
   }
 };
+
+//Middleware encargado de validar todos los roles
+export const verifyAllUsers = (req, res, next) => {
+  try {
+    const roleAdmin = req.rol;
+    const roleStudent = req.rol;
+
+    if (roleAdmin === "Admin" || roleStudent === "Estudiante") {
+      next();
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Acceso denegado, solo administrador o estudiante." });
+    }
+  } catch (error) {
+    console.log(
+      "Se ha presentado un error al intentar acceder como administrador o estudiante.",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        "Se ha presentado un error al intentar acceder como administrador o estudiante.",
+    });
+  }
+};

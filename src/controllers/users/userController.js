@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../../models/users.js";
+import { SendVerificationCode } from "../../middleware/verificationEmail/Email.js";
+import { Reservation } from "../../models/reservations.js";
 
 // Controlador encargador de mostrar todos los usuarios
 export const getUsers = async (req, res) => {
@@ -35,6 +37,9 @@ export const registerUsers = async (req, res) => {
 
     const salt = bcrypt.genSaltSync(10);
     const hashedPassword = bcrypt.hashSync(password, salt);
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
 
     const newUser = await User.create({
       name,
@@ -42,7 +47,10 @@ export const registerUsers = async (req, res) => {
       cellphone,
       email,
       password: hashedPassword,
+      verificationCode,
     });
+
+    SendVerificationCode(newUser.email, newUser.verificationCode);
 
     const token = jwt.sign(
       {
@@ -57,6 +65,7 @@ export const registerUsers = async (req, res) => {
     return res.status(200).json({
       message: "¡Bienvenido! Tu cuenta ha sido creada exitosamente.",
       token,
+      verificationCode,
     });
   } catch (error) {
     console.error(
@@ -149,7 +158,34 @@ export const getUser = async (req, res) => {
   try {
     const { idUser } = req.params;
     const user = await User.findByPk(idUser, {
-      attributes: ["id", "name", "last_name", "cellphone", "email", "rol"],
+      attributes: [
+        "id",
+        "name",
+        "last_name",
+        "cellphone",
+        "email",
+        "rol",
+        "isVerified",
+      ],
+      include: [
+        {
+          model: Reservation,
+          as: "reservations",
+          attributes: [
+            "id",
+            "date",
+            "time",
+            "status",
+            "study_area",
+            "area_test",
+            "partners",
+            "teachers_name",
+            "activity_type",
+            "other_activity",
+            "duration",
+          ],
+        },
+      ],
     });
 
     if (!user)
